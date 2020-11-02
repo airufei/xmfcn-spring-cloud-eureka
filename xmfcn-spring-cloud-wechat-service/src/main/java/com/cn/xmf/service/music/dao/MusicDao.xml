@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cn.xmf.service.music.dao.MusicDao">
+
+
+    <sql id="musicColumns">
+        str_to_date(a.updatetime, '%Y-%m-%d %H:%i:%s') AS "updatetimestr",
+		a.id AS "id",
+		a.type AS "type",
+		a.title AS "title",
+		a.url AS "url",
+		a.path as "path",
+		a.remark AS "remark"
+	</sql>
+
+    <sql id="musicJoins">
+    </sql>
+
+    <select id="getMusicById" resultType="com.cn.xmf.model.wx.Music">
+        SELECT
+        <include refid="musicColumns"/>
+        FROM t_wx_music a
+        <include refid="musicJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="getTotalCount" resultType="Integer" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        count(*) as count
+        FROM t_wx_music a
+        <include refid="musicJoins"/>
+        <where>
+            <if test="type != null and type != ''">
+                AND a.type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND a.title = #{title}
+            </if>
+            and flag=#{flag}
+        </where>
+    </select>
+
+    <select id="getList" resultType="com.cn.xmf.model.wx.Music" parameterType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        <include refid="musicColumns"/>
+        FROM
+        (SELECT id from t_wx_music t
+        <where>
+            <if test="type != null and type != ''">
+                AND t.type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND t.title = #{title}
+            </if>
+            and flag=#{flag}
+        </where>
+        ) b inner join
+        t_wx_music a on b.id=a.id
+        <choose>
+            <otherwise>
+                ORDER BY updatetime desc
+            </otherwise>
+        </choose>
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <select id="getMusicList" resultType="com.cn.xmf.model.wx.Music" parameterType="com.cn.xmf.model.wx.Music">
+        SELECT
+        <include refid="musicColumns"/>
+        FROM (SELECT id from t_wx_music t
+        <where>
+            <if test="type != null and type != ''">
+                AND t.type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND t.title = #{title}
+            </if>
+            and flag=#{flag}
+        </where>
+        ) b inner join t_wx_music a on b.id=a.id
+        <choose>
+            <otherwise>
+                ORDER BY updatetime desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getSignleMusic" resultType="com.cn.xmf.model.wx.Music" parameterType="com.cn.xmf.model.wx.Music">
+        SELECT
+        <include refid="musicColumns"/>
+        FROM
+        t_wx_music a
+        <where>
+            <if test="type != null and type != ''">
+                AND a.type = #{type}
+            </if>
+            <if test="title != null and title != ''">
+                AND a.title = #{title}
+            </if>
+            and flag=#{flag}
+        </where>
+        limit 1
+    </select>
+
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id">
+        <selectKey resultType="long" keyProperty="id" order="AFTER">
+            SELECT
+            LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO t_wx_music(
+        <if test="id != null">
+            id,
+        </if>
+        <if test="type != null">
+            type,
+        </if>
+        <if test="title != null">
+            title,
+        </if>
+        <if test="url != null">
+            url,
+        </if>
+        <if test="updateTime != null">
+            updatetime,
+        </if>
+        <if test="flag != null">
+            flag,
+        </if>
+        <if test="remark != null">
+            remark,
+        </if>
+        <if test="path != null">
+            path,
+        </if>
+        createtime
+        ) VALUES (
+
+        <if test="id != null ">
+            #{id},
+        </if>
+        <if test="type != null ">
+            #{type},
+        </if>
+        <if test="title != null ">
+            #{title},
+        </if>
+        <if test="url != null ">
+            #{url},
+        </if>
+        <if test="updateTime != null ">
+            #{updateTime},
+        </if>
+        <if test="flag != null ">
+            #{flag},
+        </if>
+        <if test="remark != null ">
+            #{remark},
+        </if>
+        <if test="path != null ">
+            #{path},
+        </if>
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateById">
+        UPDATE t_wx_music SET
+        <if test="type != null">
+            type = #{type},
+        </if>
+        <if test="title != null">
+            title = #{title},
+        </if>
+        <if test="url != null">
+            url = #{url},
+        </if>
+        <if test="remark != null">
+            remark = #{remark},
+        </if>
+        <if test="path != null">
+            path = #{path},
+        </if>
+        updatetime = now()
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+	UPDATE t_wx_music SET
+	flag = -1
+		WHERE id = #{id}
+	</update>
+</mapper>
