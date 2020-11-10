@@ -14,6 +14,7 @@
 
 ## 6、[新版代码生成工具（spring-boot-xcode）请点击](https://github.com/airufei/spring-boot-xcode)
 
+## 7、微服务springcloud交流QQ群：908936554
 
 # job-admin系统的部分功能截图
 1、登录界面
